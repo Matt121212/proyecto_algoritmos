@@ -1,1 +1,18 @@
-//Escribe tu código aqui
+def actualizar_producto():
+    try:
+        codigo = int(input("\nIngrese el ID para editar: "))
+        for i in range(len(id_producto)):
+            if codigo == id_producto[i]:
+                print(f"Modificando: {nombre_producto[i]}")
+                nuevo_p = input(f"Nuevo precio neto [Actual: ${precio_neto[i]}]: ")
+                if nuevo_p: 
+                    precio_neto[i] = float(nuevo_p)
+                nuevo_s = input(f"Nuevo stock [Actual: {stock_disponible[i]}]: ")
+                if nuevo_s: 
+                    stock_disponible[i] = int(nuevo_s)
+                
+                print("✅ Datos actualizados correctamente.")
+                return
+        print("❌ Error: ID no encontrado.")
+    except ValueError:
+        print("❌ Error: Datos ingresados no válidos.")
