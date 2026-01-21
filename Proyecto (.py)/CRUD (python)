@@ -1,1 +1,57 @@
+import random as ramdom 
 
+# --- VARIABLES GLOBALES ---
+IVA_ECUADOR = 0.15         
+id_producto = []            
+nombre_producto = []        
+precio_neto = []          
+stock_disponible = []      
+
+def menu():
+    print("\n" + "="*50)
+    print("       BARRIO MARKET - GESTIÓN CONTABLE")
+    print("1) Registrar producto")
+    print("2) Ver Inventario (Ganancia Total Valorada)")
+    print("3) Buscar producto por ID")
+    print("4) Actualizar producto")
+    print("5) Eliminar producto")
+    print("6) Salir")
+
+
+
+
+
+
+
+
+
+
+
+
+def main():
+  
+    while True: 
+        menu()
+        try:
+            opcion = int(input("\nSeleccione una opción: "))
+            
+            if opcion == 1:
+                
+            elif opcion == 2:
+                
+            elif opcion == 3:
+                
+            elif opcion == 4:
+               
+            elif opcion == 5:
+                
+            elif opcion == 6:
+                print("Saliendo de Barrio Market... ¡Éxitos en la tienda!")
+                break 
+            else:
+                print("❌ Opción no válida, intente de nuevo.")
+        except ValueError:
+            print("❌ Error: Por favor, use solo los números del menú (1-6).")
+
+if __name__ == "__main__":
+    main()
