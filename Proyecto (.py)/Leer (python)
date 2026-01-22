@@ -1,1 +1,25 @@
+def mostrar_Inventario():
+
+    print("\n INVENTARIO ")
+    print("=" * 50)
+
+    if len(id_producto) == 0:
+        print("No existen productos registrados.")
+        return
+
+    valor_total = 0
+
+    for i in range(len(id_producto)):
+        precio_con_iva = precio_neto[i] * (1 + IVA_ECUADOR)
+        valor_producto = precio_neto[i] * stock_disponible[i]
+        valor_total += valor_producto
+
+        print(f"ID Producto: {id_producto[i]}")
+        print(f"Precio neto: ${precio_neto[i]:.2f}")
+        print(f"Precio con IVA: ${precio_con_iva:.2f}")
+        print(f"Stock: {stock_disponible[i]}")
+        print(f"Valor en inventario: ${valor_producto:.2f}")
+        print("-" * 50)
+
+    print(f" Valor total del inventario: ${valor_total:.2f}")
 //Escribe tu código aqui
