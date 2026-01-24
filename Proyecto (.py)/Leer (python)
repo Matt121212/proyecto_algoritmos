@@ -22,4 +22,4 @@ def mostrar_Inventario():
         print("-" * 50)
 
     print(f" Valor total del inventario: ${valor_total:.2f}")
-//Escribe tu código aqui
+
