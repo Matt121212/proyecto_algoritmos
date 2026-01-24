@@ -1,2 +1,57 @@
-//Escribe tu código aqui
+import random
 
+IVA_ECUADOR = 0.15
+ARCHIVO = "productos.txt"
+
+id_producto = []
+nombre_producto = []
+precio_neto = []
+stock_disponible = []
+
+
+def generar_id():
+    return random.randint(1000, 9999)
+
+
+def guardar_datos(id_p, nombre, precio, stock):
+    with open(ARCHIVO, "a", encoding="utf-8") as f:
+        f.write(f"{id_p},{nombre},{precio},{stock}\n")
+
+def registrar_producto():
+    try:
+        nombre = input("Nombre del producto: ").strip()
+        if nombre == "":
+            print("El nombre no puede estar vacío")
+            return
+
+        precio = float(input("Precio neto: "))
+        if precio <= 0:
+            print("El precio debe ser mayor que 0")
+            return
+
+        stock = int(input("Stock disponible del producto: "))
+        if stock < 0:
+            print("El stock no puede ser negativo")
+            return
+
+    except ValueError:
+        print("Precio o stock inválido")
+        return
+
+    # Generar ID
+    id_p = generar_id()
+
+    # Guardar en listas
+    id_producto.append(id_p)
+    nombre_producto.append(nombre)
+    precio_neto.append(precio)
+    stock_disponible.append(stock)
+
+    # Guardar en archivo
+    guardar_datos(id_p, nombre, precio, stock)
+
+    print("\n Producto registrado exitosamente")
+    print(f"ID del producto: {id_p}")
+
+
+registrar_producto()
