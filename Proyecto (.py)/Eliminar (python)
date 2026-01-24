@@ -1,1 +1,34 @@
-//Escribe tu código aqui
+def eliminar_producto():
+    if len(id_producto) == 0:
+        print("El inventario está vacío.")
+        return
+
+    id_eliminar = input("Ingrese el ID del producto a eliminar: ")
+    eliminado = False
+
+    for i in range(len(id_producto)):
+        if id_producto[i] == id_eliminar:
+            print("\nProducto encontrado:")
+            print("---------------------------------")
+            print("ID:", id_producto[i])
+            print("Nombre:", nombre_producto[i])
+            print("Precio:", precio_neto[i])
+            print("Stock:", stock_disponible[i])
+            print("---------------------------------")
+
+            confirmacion = input("\n¿Está seguro de eliminar este producto? (S/N): ").upper()
+
+            if confirmacion == "S":
+                id_producto.pop(i)
+                nombre_producto.pop(i)
+                precio_neto.pop(i)
+                stock_disponible.pop(i)
+                print("Producto eliminado correctamente.")
+            else:
+                print("Eliminación cancelada.")
+
+            eliminado = True
+            break
+
+    if not eliminado:
+        print("El ID ingresado no existe.")
