@@ -1,9 +1,188 @@
+import random
+import os
+
+# --- VARIABLES GLOBALES ---
+IVA_ECUADOR = 0.15
+ARCHIVO = "productos.txt"
+
+# Listas de almacenamiento en memoria
+id_producto = []
+nombre_producto = []
+precio_neto = []
+stock_disponible = []
+
+# --- FUNCIONES DE ARCHIVO Y AUXILIARES ---
+
+def generar_id():
+    # Genera un ID entre 1000 y 9999
+    return random.randint(1000, 9999)
+
+def guardar_datos(id_p, nombre, precio, stock):
+    # Guarda un solo producto al final del archivo
+    with open(ARCHIVO, "a", encoding="utf-8") as f:
+        f.write(f"{id_p},{nombre},{precio},{stock}\n")
+
+def actualizar_archivo_completo():
+    # Esta función reescribe todo el archivo (usada al editar o eliminar)
+    with open(ARCHIVO, "w", encoding="utf-8") as f:
+        for i in range(len(id_producto)):
+            f.write(f"{id_producto[i]},{nombre_producto[i]},{precio_neto[i]},{stock_disponible[i]}\n")
+
+def cargar_datos_desde_archivo():
+    # Función NUEVA: Carga los datos al iniciar el programa
+    if not os.path.exists(ARCHIVO):
+        print("ℹ️  No se encontró historial. Se creará un archivo nuevo al registrar productos.")
+        return
+
+    try:
+        with open(ARCHIVO, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if len(linea) > 0:
+                    datos = linea.split(",")
+                    # Convertimos los datos a sus tipos correspondientes
+                    id_producto.append(int(datos[0]))
+                    nombre_producto.append(datos[1])
+                    precio_neto.append(float(datos[2]))
+                    stock_disponible.append(int(datos[3]))
+        print(f"✅ Se cargaron {len(id_producto)} productos del historial.")
+    except Exception as e:
+        print(f"⚠️ Error al cargar el archivo: {e}")
+
+# --- FUNCIONES DEL SISTEMA ---
+
+# 1. Registrar Producto
+def registrar_producto():
+    try:
+        nombre = input("Nombre del producto: ").strip()
+        if nombre == "":
+            print("El nombre no puede estar vacío")
+            return
+
+        precio = float(input("Precio neto: "))
+        if precio <= 0:
+            print("El precio debe ser mayor que 0")
+            return
+
+        stock = int(input("Stock disponible del producto: "))
+        if stock < 0:
+            print("El stock no puede ser negativo")
+            return
+
+    except ValueError:
+        print("Precio o stock inválido")
+        return
+
+    # Generar ID y asegurar que no se repita
+    id_p = generar_id()
+    while id_p in id_producto:
+        id_p = generar_id()
+
+    # Guardar en listas (Memoria)
+    id_producto.append(id_p)
+    nombre_producto.append(nombre)
+    precio_neto.append(precio)
+    stock_disponible.append(stock)
+
+    # Guardar en archivo (Disco)
+    guardar_datos(id_p, nombre, precio, stock)
+
+    print("\n Producto registrado exitosamente")
+    print(f"ID del producto: {id_p}")
+
+# 2. Mostrar Inventario
+def mostrar_Inventario():
+    print("\n INVENTARIO ")
+    print("=" * 50)
+
+    if len(id_producto) == 0:
+        print("No existen productos registrados.")
+        return
+
+    valor_total = 0
+
+    for i in range(len(id_producto)):
+        precio_con_iva = precio_neto[i] * (1 + IVA_ECUADOR)
+        valor_producto = precio_neto[i] * stock_disponible[i]
+        valor_total += valor_producto
+
+        print(f"ID Producto: {id_producto[i]}")
+        print(f"Nombre: {nombre_producto[i]}")
+        print(f"Precio neto: ${precio_neto[i]:.2f}")
+        print(f"Precio con IVA: ${precio_con_iva:.2f}")
+        print(f"Stock: {stock_disponible[i]}")
+        print(f"Valor en inventario: ${valor_producto:.2f}")
+        print("-" * 50)
+
+    print(f" Valor total del inventario: ${valor_total:.2f}")
+
+# 3. Buscar Producto
+def buscar_producto():
+    try:
+        if len(id_producto) == 0:
+            print("El inventario está vacío.")
+            return
+            
+        codigo = int(input("\nIngrese el ID a buscar: "))
+        encontrado = False
+        
+        for i in range(len(id_producto)):
+            if codigo == id_producto[i]:
+                print(f"\n--- Producto Encontrado ---")
+                print(f"Nombre: {nombre_producto[i]}")
+                print(f"Precio: ${precio_neto[i]}")
+                print(f"Stock: {stock_disponible[i]}")
+                encontrado = True
+                break
+        
+        if not encontrado:
+            print("❌ Producto no encontrado.")
+    except ValueError:
+        print("❌ Error: Debe ingresar un número válido.")
+
+# 4. Actualizar Producto
+def actualizar_producto():
+    try:
+        if len(id_producto) == 0:
+            print("El inventario está vacío.")
+            return
+
+        codigo = int(input("\nIngrese el ID para editar: "))
+        for i in range(len(id_producto)):
+            if codigo == id_producto[i]:
+                print(f"Modificando: {nombre_producto[i]}")
+                
+                # Editar Precio
+                nuevo_p = input(f"Nuevo precio neto [Actual: ${precio_neto[i]}]: ")
+                if nuevo_p: 
+                    precio_neto[i] = float(nuevo_p)
+                
+                # Editar Stock
+                nuevo_s = input(f"Nuevo stock [Actual: {stock_disponible[i]}]: ")
+                if nuevo_s: 
+                    stock_disponible[i] = int(nuevo_s)
+                
+                # ACTUALIZAR ARCHIVO TXT
+                actualizar_archivo_completo()
+                
+                print("✅ Datos actualizados correctamente.")
+                return
+        print("❌ Error: ID no encontrado.")
+    except ValueError:
+        print("❌ Error: Datos ingresados no válidos.")
+
+# 5. Eliminar Producto
 def eliminar_producto():
     if len(id_producto) == 0:
         print("El inventario está vacío.")
         return
 
-    id_eliminar = input("Ingrese el ID del producto a eliminar: ")
+    try:
+        id_eliminar = int(input("Ingrese el ID del producto a eliminar: ")) 
+    except ValueError:
+        print("❌ El ID debe ser un número.")
+        return
+
     eliminado = False
 
     for i in range(len(id_producto)):
@@ -23,6 +202,10 @@ def eliminar_producto():
                 nombre_producto.pop(i)
                 precio_neto.pop(i)
                 stock_disponible.pop(i)
+                
+                # ACTUALIZAR ARCHIVO TXT PARA BORRARLO DEFINITIVAMENTE
+                actualizar_archivo_completo()
+                
                 print("Producto eliminado correctamente.")
             else:
                 print("Eliminación cancelada.")
@@ -32,3 +215,45 @@ def eliminar_producto():
 
     if not eliminado:
         print("El ID ingresado no existe.")
+
+# --- MENÚ Y MAIN ---
+
+def menu():
+    print("\n" + "="*50)
+    print("        BARRIO MARKET - GESTIÓN CONTABLE")
+    print("1) Registrar producto")
+    print("2) Ver Inventario (Ganancia Total Valorada)")
+    print("3) Buscar producto por ID")
+    print("4) Actualizar producto")
+    print("5) Eliminar producto")
+    print("6) Salir")
+
+def main():
+    # CARGAR DATOS AL INICIAR
+    cargar_datos_desde_archivo()
+
+    while True: 
+        menu()
+        try:
+            opcion = int(input("\nSeleccione una opción: "))
+            
+            if opcion == 1:
+                registrar_producto()
+            elif opcion == 2:
+                mostrar_Inventario()
+            elif opcion == 3:
+                buscar_producto()
+            elif opcion == 4:
+                actualizar_producto()
+            elif opcion == 5:
+                eliminar_producto()
+            elif opcion == 6:
+                print("Saliendo de Barrio Market... ¡Éxitos en la tienda!")
+                break 
+            else:
+                print("❌ Opción no válida, intente de nuevo.")
+        except ValueError:
+            print("❌ Error: Por favor, use solo los números del menú (1-6).")
+
+if __name__ == "__main__":
+    main()
