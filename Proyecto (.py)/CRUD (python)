@@ -1,15 +1,216 @@
-import random as ramdom 
+import random
+import os
 
 # --- VARIABLES GLOBALES ---
-IVA_ECUADOR = 0.15         
-id_producto = []            
-nombre_producto = []        
-precio_neto = []          
-stock_disponible = []      
+IVA_ECUADOR = 0.15
+ARCHIVO = "productos.txt"
+
+# Listas de almacenamiento en memoria
+id_producto = []
+nombre_producto = []
+precio_neto = []
+stock_disponible = []
+
+# --- FUNCIONES DE ARCHIVO Y AUXILIARES ---
+
+def generar_id():
+    return random.randint(1000, 9999)
+
+def guardar_datos(id_p, nombre, precio, stock):
+    with open(ARCHIVO, "a", encoding="utf-8") as f:
+        f.write(f"{id_p},{nombre},{precio},{stock}\n")
+
+def actualizar_archivo_completo():
+    with open(ARCHIVO, "w", encoding="utf-8") as f:
+        for i in range(len(id_producto)):
+            f.write(f"{id_producto[i]},{nombre_producto[i]},{precio_neto[i]},{stock_disponible[i]}\n")
+
+def cargar_datos_desde_archivo():
+    if not os.path.exists(ARCHIVO):
+        print("ℹ️  No se encontró historial. Se creará un archivo nuevo al registrar productos.")
+        return
+
+    try:
+        with open(ARCHIVO, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if len(linea) > 0:
+                    datos = linea.split(",")
+                    id_producto.append(int(datos[0]))
+                    nombre_producto.append(datos[1])
+                    precio_neto.append(float(datos[2]))
+                    stock_disponible.append(int(datos[3]))
+        print(f"✅ Se cargaron {len(id_producto)} productos del historial.")
+    except Exception as e:
+        print(f"⚠️ Error al cargar el archivo: {e}")
+
+# --- FUNCIONES DEL SISTEMA ---
+
+def registrar_producto():
+    try:
+        nombre = input("Nombre del producto: ").strip()
+        if nombre == "":
+            print("El nombre no puede estar vacío")
+            return
+
+        precio = float(input("Precio neto: "))
+        if precio <= 0:
+            print("El precio debe ser mayor que 0")
+            return
+
+        stock = int(input("Stock disponible del producto: "))
+        if stock < 0:
+            print("El stock no puede ser negativo")
+            return
+
+    except ValueError:
+        print("Precio o stock inválido")
+        return
+
+    id_p = generar_id()
+    while id_p in id_producto:
+        id_p = generar_id()
+
+    id_producto.append(id_p)
+    nombre_producto.append(nombre)
+    precio_neto.append(precio)
+    stock_disponible.append(stock)
+
+    guardar_datos(id_p, nombre, precio, stock)
+
+    print("\n Producto registrado exitosamente")
+    print(f"ID del producto: {id_p}")
+
+# --- AQUÍ ESTÁ EL CAMBIO PRINCIPAL ---
+def mostrar_Inventario():
+    print("\n INVENTARIO ")
+    print("=" * 50)
+
+    if len(id_producto) == 0:
+        print("No existen productos registrados.")
+        return
+
+    valor_total_neto = 0
+    valor_total_con_iva = 0
+
+    for i in range(len(id_producto)):
+        # Cálculos por producto
+        valor_producto_neto = precio_neto[i] * stock_disponible[i]
+        valor_producto_iva = valor_producto_neto * (1 + IVA_ECUADOR)
+        
+        # Sumar a los totales generales
+        valor_total_neto += valor_producto_neto
+        valor_total_con_iva += valor_producto_iva
+
+        # Mostrar detalle (Sin precio unitario con IVA)
+        print(f"ID Producto: {id_producto[i]}")
+        print(f"Nombre: {nombre_producto[i]}")
+        print(f"Precio neto: ${precio_neto[i]:.2f}") 
+        # (Se eliminó la línea de 'Precio con IVA' unitario como pediste)
+        print(f"Stock: {stock_disponible[i]}")
+        print(f"Valor Neto en Stock: ${valor_producto_neto:.2f}")
+        print("-" * 50)
+
+    # Mostrar los totales acumulados al final
+    print(f"💰 RESUMEN FINANCIERO:")
+    print(f"   Valor Total (Neto):      ${valor_total_neto:.2f}")
+    print(f"   Valor Total (Con IVA):   ${valor_total_con_iva:.2f}")
+    print("=" * 50)
+
+def buscar_producto():
+    try:
+        if len(id_producto) == 0:
+            print("El inventario está vacío.")
+            return
+            
+        codigo = int(input("\nIngrese el ID a buscar: "))
+        encontrado = False
+        
+        for i in range(len(id_producto)):
+            if codigo == id_producto[i]:
+                print(f"\n--- Producto Encontrado ---")
+                print(f"Nombre: {nombre_producto[i]}")
+                print(f"Precio: ${precio_neto[i]}")
+                print(f"Stock: {stock_disponible[i]}")
+                encontrado = True
+                break
+        
+        if not encontrado:
+            print("❌ Producto no encontrado.")
+    except ValueError:
+        print("❌ Error: Debe ingresar un número válido.")
+
+def actualizar_producto():
+    try:
+        if len(id_producto) == 0:
+            print("El inventario está vacío.")
+            return
+
+        codigo = int(input("\nIngrese el ID para editar: "))
+        for i in range(len(id_producto)):
+            if codigo == id_producto[i]:
+                print(f"Modificando: {nombre_producto[i]}")
+                
+                nuevo_p = input(f"Nuevo precio neto [Actual: ${precio_neto[i]}]: ")
+                if nuevo_p: 
+                    precio_neto[i] = float(nuevo_p)
+                
+                nuevo_s = input(f"Nuevo stock [Actual: {stock_disponible[i]}]: ")
+                if nuevo_s: 
+                    stock_disponible[i] = int(nuevo_s)
+                
+                actualizar_archivo_completo()
+                
+                print("✅ Datos actualizados correctamente.")
+                return
+        print("❌ Error: ID no encontrado.")
+    except ValueError:
+        print("❌ Error: Datos ingresados no válidos.")
+
+def eliminar_producto():
+    if len(id_producto) == 0:
+        print("El inventario está vacío.")
+        return
+
+    try:
+        id_eliminar = int(input("Ingrese el ID del producto a eliminar: ")) 
+    except ValueError:
+        print("❌ El ID debe ser un número.")
+        return
+
+    eliminado = False
+
+    for i in range(len(id_producto)):
+        if id_producto[i] == id_eliminar:
+            print("\nProducto encontrado:")
+            print("---------------------------------")
+            print("ID:", id_producto[i])
+            print("Nombre:", nombre_producto[i])
+            print("Precio:", precio_neto[i])
+            print("Stock:", stock_disponible[i])
+            print("---------------------------------")
+
+            confirmacion = input("\n¿Está seguro de eliminar este producto? (S/N): ").upper()
+
+            if confirmacion == "S":
+                id_producto.pop(i)
+                nombre_producto.pop(i)
+                precio_neto.pop(i)
+                stock_disponible.pop(i)
+                actualizar_archivo_completo()
+                print("Producto eliminado correctamente.")
+            else:
+                print("Eliminación cancelada.")
+
+            eliminado = True
+            break
+
+    if not eliminado:
+        print("El ID ingresado no existe.")
 
 def menu():
     print("\n" + "="*50)
-    print("       BARRIO MARKET - GESTIÓN CONTABLE")
+    print("        BARRIO MARKET - GESTIÓN CONTABLE")
     print("1) Registrar producto")
     print("2) Ver Inventario (Ganancia Total Valorada)")
     print("3) Buscar producto por ID")
@@ -17,34 +218,24 @@ def menu():
     print("5) Eliminar producto")
     print("6) Salir")
 
-
-
-
-
-
-
-
-
-
-
-
 def main():
-  
+    cargar_datos_desde_archivo()
+
     while True: 
         menu()
         try:
             opcion = int(input("\nSeleccione una opción: "))
             
             if opcion == 1:
-                
+                registrar_producto()
             elif opcion == 2:
-                
+                mostrar_Inventario()
             elif opcion == 3:
-                
+                buscar_producto()
             elif opcion == 4:
-               
+                actualizar_producto()
             elif opcion == 5:
-                
+                eliminar_producto()
             elif opcion == 6:
                 print("Saliendo de Barrio Market... ¡Éxitos en la tienda!")
                 break 
