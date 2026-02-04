@@ -22,7 +22,6 @@ El sistema permite:
 
 - ✅ **Registrar productos** (nombre, precio y stock)
 - 📄 **Visualizar el inventario completo** en una tabla
-- 🔍 **Buscar productos** por nombre o ID en tiempo real
 - ✏️ **Actualizar productos existentes**
 - 🗑️ **Eliminar productos con confirmación**
 - 🧮 **Cálculo automático del total del inventario con IVA**
